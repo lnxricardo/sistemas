@@ -2,121 +2,103 @@
 
 	class Contato{
 
-		private $pdo;
+			private $pdo;
 
-		public function __construct(){
+			public function __construct(){
 
-			$this->pdo = new PDO("mysql:dbname=clientes;host=localhost", "ricardo", "123");
-		}
+				$this->pdo = new PDO("mysql:dbname=clientes;host=localhost", "ricardo", "123");
+			}
 
-		public function adicionar($email, $nome = ''){
 			
-			if($this->existeEmail($email) == false){
 
+		
+
+		// THIS START OF CODE
+
+		// CREATE DATA IN DB
+
+		public function add($email, $nome = ''){
+			if($this->existsMail($email) == false){
 				$sql = "INSERT INTO contatos (nome, email) VALUES (:nome, :email)";
 				$sql = $this->pdo->prepare($sql);
 				$sql->bindValue(':nome', $nome);
 				$sql->bindValue(':email', $email);
 				$sql->execute();
 				return true;
-
 			}else{
 				return false;
 
-
 			}
 
 
 		}
 
-		public function getInfo($id){
-			$sql = "SELECT * FROM contatos WHERE id = :id";
-			$sql = $this->pdo->prepare($sql);
-			$sql->bindValue(':id', $id);
-			$sql->execute();
-			if($sql->rowCount() > 0){
-				return $sql->fetch();
-			}else{
-				return array();
-			}
-		}
+	
 
+
+		// GET NAME
 
 		public function getNome($email){
 			$sql = "SELECT * FROM contatos WHERE email = :email";
 			$sql = $this->pdo->prepare($sql);
 			$sql->bindValue(':email', $email);
 			$sql->execute();
-
 			if($sql->rowCount() > 0){
-				$info = $sql->fetch();
+				$data = $sql->fetch();
+				return $data['nome'];
 
-				return $info['nome'];
 			}else{
-				return '';
+				return false;
 			}
 
-
 		}
+
+		// GET LIST ALL CONTACTS
 
 		public function getAll(){
 			$sql = "SELECT * FROM contatos";
 			$sql = $this->pdo->query($sql);
+
 			if($sql->rowCount() > 0){
 				return $sql->fetchAll();
 			}else{
 				return array();
 			}
+
 		}
 
+		// UPDATE LIST OF CONTACTS
 
+		public function updateData($email, $nome){
 
+			if($this->existsMail($email) == true){
 
-
-		
-		public function editar($nome, $id){
-				$sql = "UPDATE contatos SET nome = :nome WHERE id = :id";
+				$sql = "UPDATE contatos SET nome = :nome WHERE email = :email";
 				$sql = $this->pdo->prepare($sql);
 				$sql->bindValue(':nome', $nome);
-				$sql->bindValue(':id', $id);
+				$sql->bindValue(':email', $email);
 				$sql->execute();
 				return true;
-		
 
+
+			}else{
+				return false;
+			}
 
 		}
 
-		public function excluirId($id){	
+		// DELETE DATA
 
-				$sql = "DELETE FROM contatos WHERE id = :id";
+		public function deleteData($email){
+			if($this->existsMail($email)){
+
+				$sql = "DELETE FROM contatos WHERE email = :email";
 				$sql = $this->pdo->prepare($sql);
-				$sql->bindValue(':id', $id);
+				$sql->bindValue(':email', $email);
 				$sql->execute();
 				return true;
 
-			
 
-
-
-		}
-
-
-
-
-
-
-
-
-
-		private function existeEmail($email){
-
-			$sql = "SELECT * FROM contatos WHERE email = :email";
-			$sql = $this->pdo->prepare($sql);
-			$sql->bindValue(':email', $email);
-			$sql->execute();
-
-			if($sql->rowCount() > 0){
-				return true;
 			}else{
 				return false;
 			}
@@ -124,10 +106,32 @@
 		}
 
 
+		// MAKE PRIVATE FUNCTION TO VERIFY MAIL
+
+		private function existsMail($email){
+			$sql = "SELECT * FROM contatos WHERE email = :email";
+			$sql = $this->pdo->prepare($sql);
+			$sql->bindValue(':email', $email);
+			$sql->execute();
+			if($sql->rowCount() > 0){
+				return true;
+
+			}else{
+				return false;
+			}
+
+
+			
+		}
+
+
+	
+}
 
 
 
-	}
+
+
 
 
 
